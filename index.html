@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Arduino connectivity test</title>
+    <title>NextPill</title>
 
     <!-- Bootstrap -->
     <!-- Latest compiled and minified CSS -->
@@ -12,6 +12,21 @@
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+    <style>
+      html{
+        background: #3390f1;
+      }
+      body{
+        background: #3390f1;
+      }
+      .btn{
+        background: #fff;
+        color: #333;
+      }
+      h1{
+        color: #111;
+      }
+    </style>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -22,24 +37,14 @@
   </head>
   <body>
     <div class="container">
-        <h1>johnny-five test</h1>
-    <div class="row">
-      <div class="col-md-4">
-      <h4>From Analog 0</h4>
-      <textarea class="form-control" style="background:#222; color:#00ff00;" rows="8" id="inData"></textarea>
-      </div>
-      <div class="col-md-4">
-        <h4>Dispense Servo 1</h4>
-        <div class="btn-group" data-toggle="buttons">
+      <h1>NextPill</h1>
+      <div class="row">
+        <div class="col-md-4">
+          <h4>Dispense Medicine</h4>
           <button class="btn btn-primary" id="servo">Dispense</button>
+          <p>Dispense every <input type="text" id="time" placeholder="30000"/> milliseconds</p>
         </div>
       </div>
-      <div class="col-md-4">
-      <h4>LED Pulse Delay (ms)</h4>
-      <p><input type="text" class="form-control" id="ledDelay" name="ledDelay" value="1000" /></p>
-      <p><button id="ledSet" class="btn btn-primary">Set Delay</button></p>
-      </div>
-    </div>
     </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
@@ -47,20 +52,14 @@
     <script src="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      var socket = io.connect('http://localhost:3000');
-      $('#servo').on('click',function(){
-          socket.emit('servo');
+      var socket = io.connect('http://10.251.133.53:3000').emit("time", {milliseconds: 30000});
+      $('#servo').on('click', function(){
+        socket.emit('servo');
       });
-      $("#servo2").on("click", function(){
-        socket.emit("servo");
-      })
-
-      $('#ledSet').on('click',function(){
-        var tmp = parseInt($('#ledDelay').val(),10);
-        console.log("Setting LED Delay:",tmp)
-        socket.emit('led',{delay:tmp});
+      $("#time").on("blur", function(){
+        console.log("Changed");
+        socket.emit("time", {milliseconds: $("#time").val()});
       });
-
     </script>
     </body>
 </html>

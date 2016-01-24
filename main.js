@@ -7,7 +7,7 @@ http.listen(3000);
 var board = new five.Board();
 var servo = {};
 board.on("ready", function(){
-  servo = {servo: new five.Servo.Continuous(10), lastCounterClockwise: false};
+  servo = new five.Servo.Continuous(10);
 });
 function handler (req, res) {
   fs.readFile(__dirname + '/index.html', function(err, data){
@@ -21,18 +21,44 @@ function handler (req, res) {
 }
 io.sockets.on('connection', function (socket){
   socket.on('servo', function(data){
-    dispense();
+    repeat(dispense);
   });
+  socket.on("time", function(data){
+    repeat(function(){
+      dispenseWithInterval(data.milliseconds);
+    })
+  })
 });
 function dispense(){
-  if(servo.lastCounterClockwise){
-    servo.servo.cw(1);
-  }
-  else{
-    servo.servo.ccw(1);
-  }
+  // if(servo.lastCounterClockwise){
+  //   servo.servo.cw(1);
+  // }
+  // else{
+  //   servo.servo.ccw(1);
+  // }
+  // setTimeout(function(){
+  //   servo.servo.stop();
+  //   servo.lastCounterClockwise = !servo.lastCounterClockwise;
+  // }, 500);
+  servo.cw(1);
   setTimeout(function(){
-    servo.servo.stop();
+    servo.stop();
+    setTimeout(function(){
+      servo.ccw(1);
+      setTimeout(function(){
+        servo.stop();
+      }, 480)
+    }, 250);
   }, 500);
-  servo.lastCounterClockwise = !servo.lastCounterClockwise;
+}
+function dispenseWithInterval(interval){
+  if(!dispenseWithInterval.lastID === undefined){
+    clearInterval(dispenseWithInterval.lastID);
+  }
+  dispenseWithInterval.lastID = setInterval(dispense, interval);
+}
+function repeat(func){
+  for(var i = 0; i < 2; ++i){
+    func();
+  }
 }
